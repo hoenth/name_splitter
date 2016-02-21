@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Tom Hoen"]
   spec.email         = ["thoen@edgevaleinteractive.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Gem for splitting full names into the component parts}
+  spec.description   = %q{Takes a full name and gives back an object with salutation, first name, middle name, last name and prefix}
+  spec.homepage      = "https://github.com/hoenth/name_splitter"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or

@@ -1,9 +1,8 @@
 # NameSplitter
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/name_splitter`. To experiment with that code, run `bin/console` for an interactive prompt.
+The NameSplitter gem takes in a full name and spits out salutation, first name, middle name (initial), last name, and suffix. 
 
-TODO: Delete this and the text above, and describe your gem
-
+It does its best to guess whether a middle name is really part of the last name (as in 'Manny del Rio'). 
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +21,14 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+NameSplitter is pretty simple to use. Just pass in the full name string and it will return an object that responds to salutation, first_name, last_name, middle_name, and suffix. 
+
+````ruby
+names = NameSplitter::Splitter.call("Ms. Mary Beth Farmer")
+names.first_name # Mary Beth
+names.last_name # Farmer
+names.salutation # Ms.
+````
 
 ## Development
 

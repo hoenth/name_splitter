@@ -90,7 +90,7 @@ module NameSplitter
     end
 
     def salutations
-      %w{Mr Mrs Ms Miss Dr Prof Rev Capt}
+      %w{Mr Mrs Ms Miss Dr Prof Rev Capt Sister}
     end
 
     def second_first_names

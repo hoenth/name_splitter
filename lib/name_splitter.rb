@@ -82,7 +82,7 @@ module NameSplitter
     end
 
     def suffixes
-      %w{Jr Sr II III IV V VI MD PHD}
+      %w{Jr Sr II III IV V VI MD PHD Esq DDS}
     end
 
     def last_name_prefix
@@ -90,7 +90,7 @@ module NameSplitter
     end
 
     def salutations
-      %w{Mr Mrs Ms Miss Dr Prof Rev}
+      %w{Mr Mrs Ms Miss Dr Prof Rev Capt}
     end
 
     def second_first_names

@@ -56,6 +56,21 @@ describe NameSplitter::Splitter do
       @name.middle_name.should == ""
     end
 
+    it "should take 2 salutations separated by & or 'and' and place them both in the salution field" do
+      @name = subject.new("Mr. and Mrs. Jimmy Flanders")
+      @name.salutation.should == "Mr. and Mrs."
+      @name.first_name.should == "Jimmy"
+      @name.last_name.should == "Flanders"
+      @name = subject.new("Mr. & Mrs. Jimmy Flanders")
+      @name.salutation.should == "Mr. & Mrs."
+      @name.first_name.should == "Jimmy"
+      @name.last_name.should == "Flanders"
+      @name = subject.new("Mr. & Mrs. Jimmy and Beth Flanders")
+      @name.salutation.should == "Mr. & Mrs."
+      @name.first_name.should == "Jimmy and Beth"
+      @name.last_name.should == "Flanders"
+    end
+
     it "salutations can include punctuation" do
       @name = subject.new("Mr. Tom Peterson")
       @name.salutation.should == "Mr."
@@ -111,6 +126,13 @@ describe NameSplitter::Splitter do
       @name.first_name.should == "Janet and Tom"
     end
 
+    it "should place both first names in the first name field if they are separated by an 'and'" do
+      @name = subject.new("Jim Smith M.D.")
+      @name.last_name.should == "Smith"
+      @name.first_name.should == "Jim"
+      @name.suffix.should =="M.D."
+    end
+
      it "should not blow up if no parameter is included on new and attributes are accessed " do
       @name = subject.new
       @name.name.should == " "
@@ -122,9 +144,9 @@ describe NameSplitter::Splitter do
 
     describe ".call" do
       it "should call new with the passed parameter" do
-        expect(NameSplitter::Splitter).to receive(:new).with("Joan of Arc")  
-        NameSplitter::Splitter.call("Joan of Arc") 
-      end      
+        expect(NameSplitter::Splitter).to receive(:new).with("Joan of Arc")
+        NameSplitter::Splitter.call("Joan of Arc")
+      end
     end
 
 

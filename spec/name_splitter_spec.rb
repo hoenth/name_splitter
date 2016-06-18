@@ -141,6 +141,18 @@ describe NameSplitter::Splitter do
       @name.last_name.should == ""
     end
 
+    it "should properly place last name when the name has only salutation and last name for Mr. & Mrs. Stoll" do
+      @name = subject.new("Mr. & Mrs. Stoll")
+      @name.last_name.should == "Stoll"
+    end
+
+    it "should put multiple names in the first name field if they are anded" do
+      @name = subject.new("Mr. & Mrs. Jimmy Smith and Beth Flanders")
+      @name.salutation.should == "Mr. & Mrs."
+      @name.first_name.should == "Jimmy Smith and Beth"
+      @name.last_name.should == "Flanders"
+    end
+
 
     describe ".call" do
       it "should call new with the passed parameter" do

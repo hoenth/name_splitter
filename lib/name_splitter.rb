@@ -26,17 +26,15 @@ module NameSplitter
       name_arr = fullname.split(" ")
       if name_arr.length == 1
         self.first_name = name_arr.shift
-      elsif name_arr.length == 2 and contains_salutation(name_arr[0])
-        self.salutation = name_arr.shift
-        self.last_name = name_arr.shift
       else
         self.salutation = name_arr.shift(number_of_salutations(name_arr)).join(" ")
-        self.first_name = name_arr.shift
-        self.first_name = first_name + " " + name_arr.shift if is_second_first_name?(name_arr[0])
-        self.first_name = first_name + " " + name_arr.shift + " " + name_arr.shift if anded_first_names?(name_arr[0])
-
-        self.middle_name = name_arr.shift if contains_middle_name(name_arr)
-        self.last_name_check(name_arr)
+        if name_arr.length == 1
+          self.last_name = name_arr.shift
+        else
+          self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ")
+          self.middle_name = name_arr.shift if contains_middle_name(name_arr)
+          self.last_name_check(name_arr)
+        end
       end
     end
 
@@ -60,17 +58,35 @@ module NameSplitter
     end
 
     def number_of_salutations(name_arr)
-      return 3 if contains_salutation(name_arr[0]) & anded_first_names?(name_arr[1]) & contains_salutation(name_arr[2])
+      return 3 if contains_salutation(name_arr[0]) & anded_names?(name_arr[1]) & contains_salutation(name_arr[2])
       return 1 if contains_salutation(name_arr[0])
       return 0
     end
 
-    def is_second_first_name?(_name)
-     second_first_names.collect { |x| x.upcase }.include?(_name.upcase)
+    def number_of_first_names(name_arr)
+      return 2 if is_second_first_name?(name_arr[1])
+      number_of_anded_names_before_last_names_if_any(name_arr)
     end
 
-    def anded_first_names?(_name)
-      ["and", "&"].include?(_name.to_s.strip)
+    def number_of_anded_names_before_last_names_if_any(name_arr)
+      return 1 unless contains_an_and(name_arr)
+      first_name_length = name_arr.length - 1
+      first_name_length -= 1 if contains_suffix(name_arr)
+      first_name_length -= 1 if contains_last_name_prefix(name_arr)
+      first_name_length
+    end
+
+    def is_second_first_name?(_name)
+      return false unless _name
+      second_first_names.collect { |x| x.upcase }.include?(_name.upcase)
+    end
+
+    def anded_names?(_name)
+      contains_an_and(_name)
+    end
+
+    def contains_an_and(*name_arr)
+      name_arr.flatten.select { |_name| ["and", "&"].include?(_name.to_s.strip) }.any?
     end
 
     def contains_salutation(_name)

@@ -24,17 +24,24 @@ module NameSplitter
 
     def name=(fullname)
       name_arr = fullname.split(" ")
+
       if name_arr.length == 1
         self.first_name = name_arr.shift
+        return
+      end
+
+      if is_first_element_a_last_name(name_arr)
+        self.last_name = name_arr.shift.gsub(",","")
+      end
+
+      self.salutation = name_arr.shift(number_of_salutations(name_arr)).join(" ")
+
+      if name_arr.length == 1 && last_name.empty?
+        self.last_name = name_arr.shift
       else
-        self.salutation = name_arr.shift(number_of_salutations(name_arr)).join(" ")
-        if name_arr.length == 1
-          self.last_name = name_arr.shift
-        else
-          self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ")
-          self.middle_name = name_arr.shift if contains_middle_name(name_arr)
-          self.last_name_check(name_arr)
-        end
+        self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ")
+        self.middle_name = name_arr.shift if contains_middle_name(name_arr)
+        self.last_name_check(name_arr)
       end
     end
 
@@ -47,6 +54,8 @@ module NameSplitter
       self.suffix = last_name_arr.pop if contains_suffix(last_name_arr)
       self.last_name = last_name_arr.join(" ").gsub(/[.,]+/, "")
     end
+
+    private
 
     def contains_middle_name(name_arr)
       #checks whether the array of names passed in contains a likely middle name
@@ -70,7 +79,7 @@ module NameSplitter
 
     def number_of_anded_names_before_last_names_if_any(name_arr)
       return 1 unless contains_an_and(name_arr)
-      first_name_length = name_arr.length - 1
+      first_name_length = name_arr.length - (last_name.empty? ? 1 : 0)
       first_name_length -= 1 if contains_suffix(name_arr)
       first_name_length -= 1 if contains_last_name_prefix(name_arr)
       first_name_length
@@ -79,6 +88,10 @@ module NameSplitter
     def is_second_first_name?(_name)
       return false unless _name
       second_first_names.collect { |x| x.upcase }.include?(_name.upcase)
+    end
+
+    def is_first_element_a_last_name(name_arr)
+      name_arr[0].strip.match(/,/)
     end
 
     def anded_names?(_name)

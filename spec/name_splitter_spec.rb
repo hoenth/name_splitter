@@ -153,6 +153,36 @@ describe NameSplitter::Splitter do
       @name.last_name.should == "Flanders"
     end
 
+    context 'when the last name is listed first with a comma' do
+      context "and only otherwise has the first name" do
+        it "should correctly place the names in the first and last name fields" do
+          @name = subject.new("Smith, Jim")
+          @name.last_name.should == "Smith"
+          @name.first_name.should == "Jim"
+        end
+      end
+
+      context 'and also includes salutations' do
+        it "should correctly place the names in the first and last name and salutation fields" do
+          @name = subject.new("Smith, Mr. Jim")
+          @name.last_name.should == "Smith"
+          @name.first_name.should == "Jim"
+          @name.salutation.should == "Mr."
+
+          @name = subject.new("Smith, Mr. & Mrs. Jim")
+          @name.last_name.should == "Smith"
+          @name.first_name.should == "Jim"
+          @name.salutation.should == "Mr. & Mrs."
+
+          @name = subject.new("Smith, Mr. & Mrs. Jim & Janet")
+          @name.last_name.should == "Smith"
+          @name.first_name.should == "Jim & Janet"
+          @name.salutation.should == "Mr. & Mrs."
+        end
+      end
+
+    end
+
 
     describe ".call" do
       it "should call new with the passed parameter" do

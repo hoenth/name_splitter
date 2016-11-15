@@ -193,6 +193,29 @@ describe NameSplitter::Splitter do
 
     end
 
+    it 'handles space' do
+      @name = subject.new
+      @name.name = " "
+      @name.first_name.should == ""
+      @name.middle_name.should == ""
+      @name.last_name.should == ""
+    end
+
+    it 'handles empty string' do
+      @name = subject.new
+      @name.name = ""
+      @name.first_name.should == ""
+      @name.middle_name.should == ""
+      @name.last_name.should == ""
+    end
+
+    it 'handles nil' do
+      @name = subject.new
+      @name.name = nil
+      @name.first_name.should == ""
+      @name.middle_name.should == ""
+      @name.last_name.should == ""
+    end
 
     describe ".call" do
       it "should call new with the passed parameter" do

@@ -23,7 +23,8 @@ module NameSplitter
     end
 
     def name=(fullname)
-      name_arr = fullname.split(" ")
+      name_arr = fullname.to_s.split(" ")
+      return if name_arr.empty?
 
       if name_arr.length == 1
         self.first_name = name_arr.shift

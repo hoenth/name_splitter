@@ -159,6 +159,16 @@ describe NameSplitter::Splitter do
           @name = subject.new("Smith, Jim")
           @name.last_name.should == "Smith"
           @name.first_name.should == "Jim"
+
+          @name = subject.new("Smith, Jim C.")
+          @name.last_name.should == "Smith"
+          @name.first_name.should == "Jim"
+          @name.middle_name.should == "C."
+
+          @name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
+          @name.last_name.should == "Bedard"
+          @name.first_name.should == "Sheryl A. & Louis J."
+          @name.suffix.should == "Jr."
         end
       end
 

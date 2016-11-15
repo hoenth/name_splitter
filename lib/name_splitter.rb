@@ -25,6 +25,10 @@ module NameSplitter
     def name=(fullname)
       name_arr = fullname.split(" ")
 
+      if contains_suffix(name_arr)
+        self.suffix = name_arr.pop
+      end
+
       if name_arr.length == 1
         self.first_name = name_arr.shift
         return
@@ -59,10 +63,11 @@ module NameSplitter
 
     def contains_middle_name(name_arr)
       #checks whether the array of names passed in contains a likely middle name
-      (name_arr.length == 2 and
-        !(contains_suffix(name_arr) or contains_last_name_prefix(name_arr))) or
-      (name_arr.length == 3 and
-        !(contains_suffix(name_arr) and contains_last_name_prefix(name_arr))) or
+      (name_arr.length == 1 && !last_name.empty? && !first_name.empty?) ||
+      (name_arr.length == 2 &&
+        !(contains_suffix(name_arr) || contains_last_name_prefix(name_arr))) ||
+      (name_arr.length == 3 &&
+        !(contains_suffix(name_arr) && contains_last_name_prefix(name_arr))) ||
       name_arr.length > 3
     end
 

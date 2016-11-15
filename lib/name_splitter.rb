@@ -45,7 +45,7 @@ module NameSplitter
         self.last_name = name_arr.shift
       else
         self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ")
-        self.middle_name = name_arr.shift if contains_middle_name(name_arr)
+        self.middle_name = name_arr.shift(number_of_middle_names(name_arr)).join(" ")
         self.last_name_check(name_arr)
       end
     end
@@ -62,14 +62,23 @@ module NameSplitter
 
     private
 
-    def contains_middle_name(name_arr)
+    def number_of_middle_names(name_arr)
+      # if the first and last names have already been assigned, assume the
+      # rest of the name is a middle name
+      if !first_name.empty? && !last_name.empty?
+        return name_arr.length
+      end
+
       #checks whether the array of names passed in contains a likely middle name
-      (name_arr.length == 1 && !last_name.empty? && !first_name.empty?) ||
-      (name_arr.length == 2 &&
+      if (name_arr.length == 2 &&
         !(contains_suffix(name_arr) || contains_last_name_prefix(name_arr))) ||
       (name_arr.length == 3 &&
         !(contains_suffix(name_arr) && contains_last_name_prefix(name_arr))) ||
       name_arr.length > 3
+        return 1
+      end
+
+      return 0
     end
 
     def number_of_salutations(name_arr)

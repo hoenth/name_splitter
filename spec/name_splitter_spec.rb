@@ -169,6 +169,11 @@ describe NameSplitter::Splitter do
           @name.last_name.should == "Bedard"
           @name.first_name.should == "Sheryl A. & Louis J."
           @name.suffix.should == "Jr."
+
+          @name = subject.new("Bedard, John Samuel Benning")
+          @name.last_name.should == "Bedard"
+          @name.first_name.should == "John"
+          @name.middle_name.should == "Samuel Benning"
         end
       end
 

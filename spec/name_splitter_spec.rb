@@ -126,7 +126,7 @@ describe NameSplitter::Splitter do
       @name.first_name.should == "Janet and Tom"
     end
 
-    it "should place both first names in the first name field if they are separated by an 'and'" do
+    it "should recognize a suffix even if it has multiple punctuation marks" do
       @name = subject.new("Jim Smith M.D.")
       @name.last_name.should == "Smith"
       @name.first_name.should == "Jim"

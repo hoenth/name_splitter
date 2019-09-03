@@ -30,7 +30,7 @@ names.last_name # Farmer
 names.salutation # Ms.
 ````
 
-See the [spec file](specs/name_splitter_spec.rb) for documentation on all of the ways a name can be split
+See the [spec file](spec/name_splitter_spec.rb) for documentation on all of the ways a name can be split
 
 ## Development
 

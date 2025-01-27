@@ -9,13 +9,15 @@ module NameSplitter
       new(fullname)
     end
 
-    def initialize(fullname = "")
-      self.salutation = ""
-      self.first_name = ""
-      self.middle_name = ""
-      self.last_name = ""
-      self.suffix = ""
-      self.name = fullname if fullname and !fullname.to_s.empty?
+    def initialize(fullname = "", options = {})
+      @salutation = ""
+      @first_name = ""
+      @middle_name = ""
+      @last_name = ""
+      @suffix = ""
+      @options = options
+      @delimeter = options[:format] == "last_first" ? "," : " "
+      self.name = fullname
     end
 
     def name
@@ -23,7 +25,9 @@ module NameSplitter
     end
 
     def name=(fullname)
-      name_arr = fullname.to_s.split(" ")
+      return if fullname.nil? || fullname.strip.empty?
+
+      name_arr = fullname.to_s.split(@delimeter)
       return if name_arr.empty?
 
       if contains_suffix(name_arr)

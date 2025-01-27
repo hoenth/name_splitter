@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe NameSplitter::Splitter do
-    subject { NameSplitter::Splitter}
+    subject { NameSplitter::Splitter }
 
     it "should be able to split a name into first and last names" do
       @name = subject.new
@@ -154,28 +154,58 @@ describe NameSplitter::Splitter do
     end
 
     context 'when the last name is listed first with a comma' do
-      context "and only otherwise has the first name" do
-        it "should correctly place the names in the first and last name fields" do
-          @name = subject.new("Smith, Jim")
-          @name.last_name.should == "Smith"
-          @name.first_name.should == "Jim"
+      let(:split_name) { described_class.new(full_name) }
 
-          @name = subject.new("Smith, Jim C.")
-          @name.last_name.should == "Smith"
-          @name.first_name.should == "Jim"
-          @name.middle_name.should == "C."
+      context "and no format option is provided" do
+        context "and nothing other than the first name is provided" do
+          let(:full_name) { "Smith, Jim" }
 
-          @name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
-          @name.last_name.should == "Bedard"
-          @name.first_name.should == "Sheryl A. & Louis J."
-          @name.suffix.should == "Jr."
+          it "should correctly place the names in the first and last name fields" do
+            split_name.last_name.should == "Smith"
+            split_name.first_name.should == "Jim"
+          end
+        end
 
-          @name = subject.new("Bedard, John Samuel Benning")
-          @name.last_name.should == "Bedard"
-          @name.first_name.should == "John"
-          @name.middle_name.should == "Samuel Benning"
+        context "and a middle name is provided" do
+          it "should correctly place the names in the first and last name fields" do  
+            @name = subject.new("Smith, Jim C.")
+            @name.last_name.should == "Smith"
+            @name.first_name.should == "Jim"
+            @name.middle_name.should == "C."
+          end
+        end
+
+        context "and a second person is provided along with a suffic" do
+          it "should correctly place the names in the first and last name fields" do  
+            @name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
+            @name.last_name.should == "Bedard"
+            @name.first_name.should == "Sheryl A. & Louis J."
+            @name.suffix.should == "Jr."
+          end
+        end
+        
+        context "and multiple middle names are provided" do
+          it "should correctly place the names in the first and last name fields, etc" do
+            @name = subject.new("Bedard, John Samuel Benning")
+            @name.last_name.should == "Bedard"
+            @name.first_name.should == "John"
+            @name.middle_name.should == "Samuel Benning"  
+          end
+        end
+
+        context "and no space separating the comma and the first name" do
+          it "does not quite work properly, as we expect to split on a space" do
+            @name = subject.new("Smith,Jim")
+            @name.first_name.should == "Smith,Jim"
+            @name.last_name.should == ""
+          end
         end
       end
+
+      context "and the last_first format option is provided" do
+        
+      end
+      
 
       context 'and also includes salutations' do
         it "should correctly place the names in the first and last name and salutation fields" do

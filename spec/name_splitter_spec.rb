@@ -1,263 +1,262 @@
 require 'spec_helper'
 
-describe NameSplitter::Splitter do
-    subject { NameSplitter::Splitter }
+RSpec.describe NameSplitter::Splitter do
+  subject { NameSplitter::Splitter }
 
-    it "should be able to split a name into first and last names" do
-      @name = subject.new
-      @name.name="Jimmy Johnson"
-      @name.name.should == "Jimmy Johnson"
-      @name.first_name.should == "Jimmy"
-      @name.last_name.should == "Johnson"
-    end
+  it "splits a name into first and last names" do
+    name = subject.new
+    name.name = "Jimmy Johnson"
+    expect(name.name).to eq("Jimmy Johnson")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.last_name).to eq("Johnson")
+  end
 
-    it "should be able to split a name into first, middle and last_names" do
-      @name = subject.new
-      @name.name="Jimmy Berger Johnson II"
-      @name.name.should == "Jimmy Johnson, II"
-      @name.first_name.should == "Jimmy"
-      @name.middle_name.should == "Berger"
-      @name.last_name.should == "Johnson"
-      @name.suffix.should == "II"
-    end
+  it "splits a name into first, middle, and last names" do
+    name = subject.new
+    name.name = "Jimmy Berger Johnson II"
+    expect(name.name).to eq("Jimmy Johnson, II")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.middle_name).to eq("Berger")
+    expect(name.last_name).to eq("Johnson")
+    expect(name.suffix).to eq("II")
+  end
 
-     it "should be able to split a name into first, middle and last_names when last name includes a prefix" do
-      @name = subject.new
-      @name.name="Jimmy Berger van Hinton III"
-      @name.name.should == "Jimmy van Hinton, III"
-      @name.first_name.should == "Jimmy"
-      @name.middle_name.should == "Berger"
-      @name.last_name.should == "van Hinton"
-      @name.suffix.should == "III"
-    end
+  it "splits a name into first, middle, and last names when last name includes a prefix" do
+    name = subject.new
+    name.name = "Jimmy Berger van Hinton III"
+    expect(name.name).to eq("Jimmy van Hinton, III")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.middle_name).to eq("Berger")
+    expect(name.last_name).to eq("van Hinton")
+    expect(name.suffix).to eq("III")
+  end
 
-    it "should take a full name with a prefix and suffix on new and provide access to first middle etc. " do
-      @name = subject.new("Jimmy Berger van Hinton III")
-      @name.name.should == "Jimmy van Hinton, III"
-      @name.first_name.should == "Jimmy"
-      @name.middle_name.should == "Berger"
-      @name.last_name.should == "van Hinton"
-    end
+  it "takes a full name with a prefix and suffix on new and provides access to first, middle, etc." do
+    name = subject.new("Jimmy Berger van Hinton III")
+    expect(name.name).to eq("Jimmy van Hinton, III")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.middle_name).to eq("Berger")
+    expect(name.last_name).to eq("van Hinton")
+  end
 
-    it "should take a full name with a prefix on new and provide access to first midddle etc. " do
-      @name = subject.new("Maggie de Cuevas")
-      @name.name.should == "Maggie de Cuevas"
-      @name.first_name.should == "Maggie"
-      @name.middle_name.should == ""
-      @name.last_name.should == "de Cuevas"
-    end
+  it "takes a full name with a prefix on new and provides access to first, middle, etc." do
+    name = subject.new("Maggie de Cuevas")
+    expect(name.name).to eq("Maggie de Cuevas")
+    expect(name.first_name).to eq("Maggie")
+    expect(name.middle_name).to eq("")
+    expect(name.last_name).to eq("de Cuevas")
+  end
 
-    it "should take a salutation and return it along with the rest of the name" do
-      @name = subject.new("Miss Floura Flanders")
-      @name.name.should == "Floura Flanders"
-      @name.salutation.should == "Miss"
-      @name.first_name.should == "Floura"
-      @name.last_name.should == "Flanders"
-      @name.middle_name.should == ""
-    end
+  it "takes a salutation and returns it along with the rest of the name" do
+    name = subject.new("Miss Floura Flanders")
+    expect(name.name).to eq("Floura Flanders")
+    expect(name.salutation).to eq("Miss")
+    expect(name.first_name).to eq("Floura")
+    expect(name.last_name).to eq("Flanders")
+    expect(name.middle_name).to eq("")
+  end
 
-    it "should take 2 salutations separated by & or 'and' and place them both in the salution field" do
-      @name = subject.new("Mr. and Mrs. Jimmy Flanders")
-      @name.salutation.should == "Mr. and Mrs."
-      @name.first_name.should == "Jimmy"
-      @name.last_name.should == "Flanders"
-      @name = subject.new("Mr. & Mrs. Jimmy Flanders")
-      @name.salutation.should == "Mr. & Mrs."
-      @name.first_name.should == "Jimmy"
-      @name.last_name.should == "Flanders"
-      @name = subject.new("Mr. & Mrs. Jimmy and Beth Flanders")
-      @name.salutation.should == "Mr. & Mrs."
-      @name.first_name.should == "Jimmy and Beth"
-      @name.last_name.should == "Flanders"
-    end
+  it "takes 2 salutations separated by & or 'and' and places them both in the salutation field" do
+    name = subject.new("Mr. and Mrs. Jimmy Flanders")
+    expect(name.salutation).to eq("Mr. and Mrs.")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.last_name).to eq("Flanders")
 
-    it "salutations can include punctuation" do
-      @name = subject.new("Mr. Tom Peterson")
-      @name.salutation.should == "Mr."
-    end
+    name = subject.new("Mr. & Mrs. Jimmy Flanders")
+    expect(name.salutation).to eq("Mr. & Mrs.")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.last_name).to eq("Flanders")
 
-    it "should take on MD as a suffix" do
-      @name = subject.new("John Farmer, Md")
-      @name.name.should == "John Farmer, Md"
-      @name.last_name.should == "Farmer"
-      @name.suffix.should == "Md"
-      @name.salutation.should == ""
-    end
+    name = subject.new("Mr. & Mrs. Jimmy and Beth Flanders")
+    expect(name.salutation).to eq("Mr. & Mrs.")
+    expect(name.first_name).to eq("Jimmy and Beth")
+    expect(name.last_name).to eq("Flanders")
+  end
 
-    it "should take a suffix with punctuation" do
-      @name = subject.new("Same Barker, Ph.D.")
-      @name.last_name.should == "Barker"
-      @name.suffix.should == "Ph.D."
-    end
+  it "allows salutations to include punctuation" do
+    name = subject.new("Mr. Tom Peterson")
+    expect(name.salutation).to eq("Mr.")
+  end
 
-    it "should handle a name with salutation, prefix and suffix" do
-      @name = subject.new("Mr. Fred el Greco, III")
-      @name.last_name.should == "el Greco"
-      @name.name.should == "Fred el Greco, III"
-    end
+  it "takes on MD as a suffix" do
+    name = subject.new("John Farmer, Md")
+    expect(name.name).to eq("John Farmer, Md")
+    expect(name.last_name).to eq("Farmer")
+    expect(name.suffix).to eq("Md")
+    expect(name.salutation).to eq("")
+  end
 
-    it "should handle a name where the first name consists of two names" do
-      @name = subject.new("Ms. Mary Beth Farmer")
-      @name.last_name.should == "Farmer"
-      @name.first_name.should == "Mary Beth"
-    end
+  it "takes a suffix with punctuation" do
+    name = subject.new("Same Barker, Ph.D.")
+    expect(name.last_name).to eq("Barker")
+    expect(name.suffix).to eq("Ph.D.")
+  end
 
-    it "should handle just a first name that is in two parts" do
-      @name = subject.new("Mary Catherine")
-      @name.first_name.should == "Mary Catherine"
-      @name = subject.new("Mary Beth")
-      @name.first_name.should == "Mary Beth"
-    end
+  it "handles a name with salutation, prefix, and suffix" do
+    name = subject.new("Mr. Fred el Greco, III")
+    expect(name.last_name).to eq("el Greco")
+    expect(name.name).to eq("Fred el Greco, III")
+  end
 
-    it "should handle being passed just a single name" do
-      @name = subject.new("Jimmy")
-      @name.first_name.should == "Jimmy"
-    end
+  it "handles a name where the first name consists of two names" do
+    name = subject.new("Ms. Mary Beth Farmer")
+    expect(name.last_name).to eq("Farmer")
+    expect(name.first_name).to eq("Mary Beth")
+  end
 
-    it "should place find the last name if the name consists of a salutation and one other name" do
-      @name = subject.new("Mr. Martin")
-      @name.last_name.should == "Martin"
-      @name.name == "Martin"
-    end
+  it "handles just a first name that is in two parts" do
+    name = subject.new("Mary Catherine")
+    expect(name.first_name).to eq("Mary Catherine")
 
-    it "should place both first names in the first name field if they are separated by an 'and'" do
-      @name = subject.new("Janet and Tom Smith")
-      @name.last_name.should == "Smith"
-      @name.first_name.should == "Janet and Tom"
-    end
+    name = subject.new("Mary Beth")
+    expect(name.first_name).to eq("Mary Beth")
+  end
 
-    it "should recognize a suffix even if it has multiple punctuation marks" do
-      @name = subject.new("Jim Smith M.D.")
-      @name.last_name.should == "Smith"
-      @name.first_name.should == "Jim"
-      @name.suffix.should =="M.D."
-    end
+  it "handles being passed just a single name" do
+    name = subject.new("Jimmy")
+    expect(name.first_name).to eq("Jimmy")
+  end
 
-     it "should not blow up if no parameter is included on new and attributes are accessed " do
-      @name = subject.new
-      @name.name.should == " "
-      @name.first_name.should == ""
-      @name.middle_name.should == ""
-      @name.last_name.should == ""
-    end
+  it "finds the last name if the name consists of a salutation and one other name" do
+    name = subject.new("Mr. Martin")
+    expect(name.last_name).to eq("Martin")
+    expect(name.name).to eq("Mr. Martin")
+  end
 
-    it "should properly place last name when the name has only salutation and last name for Mr. & Mrs. Stoll" do
-      @name = subject.new("Mr. & Mrs. Stoll")
-      @name.last_name.should == "Stoll"
-    end
+  it "places both first names in the first name field if they are separated by an 'and'" do
+    name = subject.new("Janet and Tom Smith")
+    expect(name.last_name).to eq("Smith")
+    expect(name.first_name).to eq("Janet and Tom")
+  end
 
-    it "should put multiple names in the first name field if they are anded" do
-      @name = subject.new("Mr. & Mrs. Jimmy Smith and Beth Flanders")
-      @name.salutation.should == "Mr. & Mrs."
-      @name.first_name.should == "Jimmy Smith and Beth"
-      @name.last_name.should == "Flanders"
-    end
+  it "recognizes a suffix even if it has multiple punctuation marks" do
+    name = subject.new("Jim Smith M.D.")
+    expect(name.last_name).to eq("Smith")
+    expect(name.first_name).to eq("Jim")
+    expect(name.suffix).to eq("M.D.")
+  end
 
-    context 'when the last name is listed first with a comma' do
-      let(:split_name) { described_class.new(full_name) }
+  it "does not blow up if no parameter is included on new and attributes are accessed" do
+    name = subject.new
+    expect(name.name).to eq("")
+    expect(name.first_name).to eq("")
+    expect(name.middle_name).to eq("")
+    expect(name.last_name).to eq("")
+  end
 
-      context "and no format option is provided" do
-        context "and nothing other than the first name is provided" do
-          let(:full_name) { "Smith, Jim" }
+  it "properly places last name when the name has only salutation and last name for Mr. & Mrs. Stoll" do
+    name = subject.new("Mr. & Mrs. Stoll")
+    expect(name.last_name).to eq("Stoll")
+  end
 
-          it "should correctly place the names in the first and last name fields" do
-            split_name.last_name.should == "Smith"
-            split_name.first_name.should == "Jim"
-          end
-        end
+  it "puts multiple names in the first name field if they are anded" do
+    name = subject.new("Mr. & Mrs. Jimmy Smith and Beth Flanders")
+    expect(name.salutation).to eq("Mr. & Mrs.")
+    expect(name.first_name).to eq("Jimmy Smith and Beth")
+    expect(name.last_name).to eq("Flanders")
+  end
 
-        context "and a middle name is provided" do
-          it "should correctly place the names in the first and last name fields" do  
-            @name = subject.new("Smith, Jim C.")
-            @name.last_name.should == "Smith"
-            @name.first_name.should == "Jim"
-            @name.middle_name.should == "C."
-          end
-        end
+  context 'when the last name is listed first with a comma' do
+    let(:split_name) { described_class.new(full_name) }
 
-        context "and a second person is provided along with a suffic" do
-          it "should correctly place the names in the first and last name fields" do  
-            @name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
-            @name.last_name.should == "Bedard"
-            @name.first_name.should == "Sheryl A. & Louis J."
-            @name.suffix.should == "Jr."
-          end
-        end
-        
-        context "and multiple middle names are provided" do
-          it "should correctly place the names in the first and last name fields, etc" do
-            @name = subject.new("Bedard, John Samuel Benning")
-            @name.last_name.should == "Bedard"
-            @name.first_name.should == "John"
-            @name.middle_name.should == "Samuel Benning"  
-          end
-        end
+    context "and no format option is provided" do
+      context "and nothing other than the first name is provided" do
+        let(:full_name) { "Smith, Jim" }
 
-        context "and no space separating the comma and the first name" do
-          it "does not quite work properly, as we expect to split on a space" do
-            @name = subject.new("Smith,Jim")
-            @name.first_name.should == "Smith,Jim"
-            @name.last_name.should == ""
-          end
+        it "correctly places the names in the first and last name fields" do
+          expect(split_name.last_name).to eq("Smith")
+          expect(split_name.first_name).to eq("Jim")
         end
       end
 
-      context "and the last_first format option is provided" do
-        
-      end
-      
-
-      context 'and also includes salutations' do
-        it "should correctly place the names in the first and last name and salutation fields" do
-          @name = subject.new("Smith, Mr. Jim")
-          @name.last_name.should == "Smith"
-          @name.first_name.should == "Jim"
-          @name.salutation.should == "Mr."
-
-          @name = subject.new("Smith, Mr. & Mrs. Jim")
-          @name.last_name.should == "Smith"
-          @name.first_name.should == "Jim"
-          @name.salutation.should == "Mr. & Mrs."
-
-          @name = subject.new("Smith, Mr. & Mrs. Jim & Janet")
-          @name.last_name.should == "Smith"
-          @name.first_name.should == "Jim & Janet"
-          @name.salutation.should == "Mr. & Mrs."
+      context "and a middle name is provided" do
+        it "correctly places the names in the first and last name fields" do  
+          name = subject.new("Smith, Jim C.")
+          expect(name.last_name).to eq("Smith")
+          expect(name.first_name).to eq("Jim")
+          expect(name.middle_name).to eq("C.")
         end
       end
 
-    end
+      context "and a second person is provided along with a suffix" do
+        it "correctly places the names in the first and last name fields" do  
+          name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
+          expect(name.last_name).to eq("Bedard")
+          expect(name.first_name).to eq("Sheryl A. & Louis J.")
+          expect(name.suffix).to eq("Jr.")
+        end
+      end
 
-    it 'handles space' do
-      @name = subject.new
-      @name.name = " "
-      @name.first_name.should == ""
-      @name.middle_name.should == ""
-      @name.last_name.should == ""
-    end
+      context "and multiple middle names are provided" do
+        it "correctly places the names in the first and last name fields, etc" do
+          name = subject.new("Bedard, John Samuel Benning")
+          expect(name.last_name).to eq("Bedard")
+          expect(name.first_name).to eq("John")
+          expect(name.middle_name).to eq("Samuel Benning")  
+        end
+      end
 
-    it 'handles empty string' do
-      @name = subject.new
-      @name.name = ""
-      @name.first_name.should == ""
-      @name.middle_name.should == ""
-      @name.last_name.should == ""
-    end
-
-    it 'handles nil' do
-      @name = subject.new
-      @name.name = nil
-      @name.first_name.should == ""
-      @name.middle_name.should == ""
-      @name.last_name.should == ""
-    end
-
-    describe ".call" do
-      it "should call new with the passed parameter" do
-        expect(NameSplitter::Splitter).to receive(:new).with("Joan of Arc")
-        NameSplitter::Splitter.call("Joan of Arc")
+      context "and no space separating the comma and the first name" do
+        it "does not quite work properly, as we expect to split on a space" do
+          name = subject.new("Smith,Jim")
+          expect(name.first_name).to eq("Smith,Jim")
+          expect(name.last_name).to eq("")
+        end
       end
     end
 
+    context "and the last_first format option is provided" do
+      # Add tests for last_first format option if needed
+    end
 
+    context 'and also includes salutations' do
+      it "correctly places the names in the first and last name and salutation fields" do
+        name = subject.new("Smith, Mr. Jim")
+        expect(name.last_name).to eq("Smith")
+        expect(name.first_name).to eq("Jim")
+        expect(name.salutation).to eq("Mr.")
+
+        name = subject.new("Smith, Mr. & Mrs. Jim")
+        expect(name.last_name).to eq("Smith")
+        expect(name.first_name).to eq("Jim")
+        expect(name.salutation).to eq("Mr. & Mrs.")
+
+        name = subject.new("Smith, Mr. & Mrs. Jim & Janet")
+        expect(name.last_name).to eq("Smith")
+        expect(name.first_name).to eq("Jim & Janet")
+        expect(name.salutation).to eq("Mr. & Mrs.")
+      end
+    end
+  end
+
+  it 'handles space' do
+    name = subject.new
+    name.name = " "
+    expect(name.first_name).to eq("")
+    expect(name.middle_name).to eq("")
+    expect(name.last_name).to eq("")
+  end
+
+  it 'handles empty string' do
+    name = subject.new
+    name.name = ""
+    expect(name.first_name).to eq("")
+    expect(name.middle_name).to eq("")
+    expect(name.last_name).to eq("")
+  end
+
+  it 'handles nil' do
+    name = subject.new
+    name.name = nil
+    expect(name.first_name).to eq("")
+    expect(name.middle_name).to eq("")
+    expect(name.last_name).to eq("")
+  end
+
+  describe ".call" do
+    it "calls new with the passed parameter" do
+      expect(NameSplitter::Splitter).to receive(:new).with("Joan of Arc")
+      NameSplitter::Splitter.call("Joan of Arc")
+    end
+  end
 end

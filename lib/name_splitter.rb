@@ -21,7 +21,9 @@ module NameSplitter
     end
 
     def name
-      first_name + " " + last_name + (suffix.to_s.empty? ? "" : ", " + suffix)
+      return "#{first_name.strip} #{last_name.strip}#{suffix.to_s.empty? ? "" : ", " + suffix}".strip if first_name.strip.length > 0
+
+      return "#{salutation.strip} #{last_name.strip}#{suffix.to_s.empty? ? "" : ", " + suffix}".strip
     end
 
     def name=(fullname)
@@ -56,7 +58,7 @@ module NameSplitter
 
     def last_name_check(last_name_arr)
       #accepts either a string or an array
-      if last_name_arr.class.name == "String"
+      if last_name_arr.is_a?(String)
         last_name_arr = last_name_arr.split(" ")
       end
       return false if last_name_arr.empty?

@@ -156,57 +156,73 @@ RSpec.describe NameSplitter::Splitter do
     expect(name.last_name).to eq("Flanders")
   end
 
+  shared_examples_for "last name first separated by comma" do
+    context "and nothing other than the first name is provided" do
+      let(:full_name) { "Smith, Jim" }
+
+      it "correctly places the names in the first and last name fields" do
+        expect(split_name.last_name).to eq("Smith")
+        expect(split_name.first_name).to eq("Jim")
+      end
+    end
+
+    context "and a middle name is provided" do
+      let(:full_name) { "Smith, Jim C."}
+      it "correctly places the names in the first and last name fields" do  
+        expect(split_name.last_name).to eq("Smith")
+        expect(split_name.first_name).to eq("Jim")
+        expect(split_name.middle_name).to eq("C.")
+      end
+    end
+
+    context "and a second person is provided along with a suffix" do
+      let(:full_name) { "Bedard, Sheryl A. & Louis J. Jr."}
+      it "correctly places the names in the first and last name fields" do  
+        expect(split_name.last_name).to eq("Bedard")
+        expect(split_name.first_name).to eq("Sheryl A. & Louis J.")
+        expect(split_name.suffix).to eq("Jr.")
+      end
+    end
+
+    context "and multiple middle names are provided" do
+      let(:full_name) { "Bedard, John Samuel Benning"}
+      it "correctly places the names in the first and last name fields, etc" do
+        expect(split_name.last_name).to eq("Bedard")
+        expect(split_name.first_name).to eq("John")
+        expect(split_name.middle_name).to eq("Samuel Benning")  
+      end
+    end
+  end
+
   context 'when the last name is listed first with a comma' do
-    let(:split_name) { described_class.new(full_name) }
+    context "and no format is provided" do
+      let(:split_name) { described_class.new(full_name) }
 
-    context "and no format option is provided" do
-      context "and nothing other than the first name is provided" do
-        let(:full_name) { "Smith, Jim" }
-
-        it "correctly places the names in the first and last name fields" do
-          expect(split_name.last_name).to eq("Smith")
-          expect(split_name.first_name).to eq("Jim")
-        end
-      end
-
-      context "and a middle name is provided" do
-        it "correctly places the names in the first and last name fields" do  
-          name = subject.new("Smith, Jim C.")
-          expect(name.last_name).to eq("Smith")
-          expect(name.first_name).to eq("Jim")
-          expect(name.middle_name).to eq("C.")
-        end
-      end
-
-      context "and a second person is provided along with a suffix" do
-        it "correctly places the names in the first and last name fields" do  
-          name = subject.new("Bedard, Sheryl A. & Louis J. Jr.")
-          expect(name.last_name).to eq("Bedard")
-          expect(name.first_name).to eq("Sheryl A. & Louis J.")
-          expect(name.suffix).to eq("Jr.")
-        end
-      end
-
-      context "and multiple middle names are provided" do
-        it "correctly places the names in the first and last name fields, etc" do
-          name = subject.new("Bedard, John Samuel Benning")
-          expect(name.last_name).to eq("Bedard")
-          expect(name.first_name).to eq("John")
-          expect(name.middle_name).to eq("Samuel Benning")  
-        end
-      end
+      it_behaves_like "last name first separated by comma"
 
       context "and no space separating the comma and the first name" do
+        let(:full_name) { "Smith,Jim"}
+
         it "does not quite work properly, as we expect to split on a space" do
-          name = subject.new("Smith,Jim")
-          expect(name.first_name).to eq("Smith,Jim")
-          expect(name.last_name).to eq("")
+          expect(split_name.first_name).to eq("Smith,Jim")
+          expect(split_name.last_name).to eq("")
         end
       end
     end
 
     context "and the last_first format option is provided" do
-      # Add tests for last_first format option if needed
+      let(:split_name) { described_class.new(full_name, format: NameSplitter::Splitter::LAST_COMMA_FIRST_FORMAT) }
+
+      it_behaves_like "last name first separated by comma"
+
+      context "and no space separating the comma and the first name" do
+        let(:full_name) { "Smith,Jim"}
+          
+        it "works properly and places the names in the correct fields" do
+          expect(split_name.first_name).to eq("Jim")
+          expect(split_name.last_name).to eq("Smith")
+        end
+      end
     end
 
     context 'and also includes salutations' do

@@ -2,6 +2,8 @@ require "name_splitter/version"
 
 module NameSplitter
   class Splitter
+    LAST_COMMA_FIRST_FORMAT = "last_comma_first"
+
     attr_accessor :suffixes, :first_name, :last_name, :middle_name, :last_name_prefix, :salutation, :suffix
     attr_reader :name
 
@@ -16,7 +18,7 @@ module NameSplitter
       @last_name = ""
       @suffix = ""
       @options = options
-      @delimeter = options[:format] == "last_first" ? "," : " "
+      @delimeter = options[:format] == LAST_COMMA_FIRST_FORMAT ? /[ ,]+/ : /[ ]+/
       self.name = fullname
     end
 
@@ -29,29 +31,30 @@ module NameSplitter
     def name=(fullname)
       return if fullname.nil? || fullname.strip.empty?
 
+      
       name_arr = fullname.to_s.split(@delimeter)
       return if name_arr.empty?
 
       if contains_suffix(name_arr)
-        self.suffix = name_arr.pop
+        self.suffix = name_arr.pop.strip
       end
 
       if name_arr.length == 1
-        self.first_name = name_arr.shift
+        self.first_name = name_arr.shift.strip
         return
       end
 
       if is_first_element_a_last_name(name_arr)
-        self.last_name = name_arr.shift.gsub(",","")
+        self.last_name = name_arr.shift.gsub(",","").strip
       end
 
-      self.salutation = name_arr.shift(number_of_salutations(name_arr)).join(" ")
+      self.salutation = name_arr.shift(number_of_salutations(name_arr)).join(" ").strip
 
       if name_arr.length == 1 && last_name.empty?
-        self.last_name = name_arr.shift
+        self.last_name = name_arr.shift.strip
       else
-        self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ")
-        self.middle_name = name_arr.shift(number_of_middle_names(name_arr)).join(" ")
+        self.first_name = name_arr.shift(number_of_first_names(name_arr)).join(" ").strip
+        self.middle_name = name_arr.shift(number_of_middle_names(name_arr)).join(" ").strip
         self.last_name_check(name_arr)
       end
     end
@@ -63,7 +66,7 @@ module NameSplitter
       end
       return false if last_name_arr.empty?
       self.suffix = last_name_arr.pop if contains_suffix(last_name_arr)
-      self.last_name = last_name_arr.join(" ").gsub(/[.,]+/, "")
+      self.last_name = last_name_arr.join(" ").gsub(/[.,]+/, "").strip
     end
 
     private
@@ -108,10 +111,13 @@ module NameSplitter
 
     def is_second_first_name?(_name)
       return false unless _name
+
       second_first_names.collect { |x| x.upcase }.include?(_name.upcase)
     end
 
     def is_first_element_a_last_name(name_arr)
+      return true if @options[:format] == LAST_COMMA_FIRST_FORMAT
+
       name_arr[0].strip.match(/,/)
     end
 

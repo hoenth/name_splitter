@@ -4,7 +4,7 @@ module NameSplitter
   class Splitter
     LAST_COMMA_FIRST_FORMAT = "last_comma_first"
 
-    attr_accessor :suffixes, :first_name, :last_name, :middle_name, :last_name_prefix, :salutation, :suffix
+    attr_accessor :suffixes, :first_name, :last_name, :middle_name, :last_name_prefix, :salutation, :suffix, :last_name_first_format
     attr_reader :name
 
     def self.call(fullname)
@@ -18,7 +18,8 @@ module NameSplitter
       @last_name = ""
       @suffix = ""
       @options = options
-      @delimeter = options[:format] == LAST_COMMA_FIRST_FORMAT ? /[ ,]+/ : /[ ]+/
+      @last_name_first_format = options[:format] == LAST_COMMA_FIRST_FORMAT
+      @delimeter = /[ ]+/
       self.name = fullname
     end
 
@@ -31,8 +32,11 @@ module NameSplitter
     def name=(fullname)
       return if fullname.nil? || fullname.strip.empty?
 
-      
-      name_arr = fullname.to_s.split(@delimeter)
+      if last_name_first_format
+        name_arr = split_name_when_last_name_is_first(fullname)
+      else
+        name_arr ||= fullname.to_s.split(@delimeter)
+      end
       return if name_arr.empty?
 
       if contains_suffix(name_arr)
@@ -129,9 +133,9 @@ module NameSplitter
       name_arr.flatten.select { |_name| ["and", "&"].include?(_name.to_s.strip) }.any?
     end
 
-    def contains_salutation(_name)
-      return false unless _name
-      salutations.collect { |x| x.upcase }.include?(_name.gsub(/[.,;']+/, "").upcase)
+    def contains_salutation(name)
+      return false unless name
+      salutations.collect { |x| x.upcase }.include?(name.gsub(/[.,;']+/, "").upcase)
     end
 
     def contains_last_name_prefix(name_arr)
@@ -142,6 +146,27 @@ module NameSplitter
       raise "contains_suffix must receive an array" if !name_arr.class.name == "Array"
       return false if name_arr.length == 1
       suffixes.collect { |x| x.upcase }.include?(name_arr.last.gsub(/[.,;']+/, "").upcase)
+    end
+
+    # here we assume that everything before the comma is associated with the last name and everything after the comma
+    # are the other names (first, middle, salutation). A suffix would most likely be in the last name portion of the name.
+    # examples of this format include "Smith, John", "Smith,John C.", "Smith Johnson Jr., Jim C."
+    def split_name_when_last_name_is_first(fullname)
+      name_arr = fullname.to_s.split(/[,]+/) # we first only want to split out the name(s) that are considered last from the first
+      return name_arr if name_arr.length < 2
+
+      last_names = name_arr[0].split(" ") # we then want to split the last name(s) into an array to check for last name prefixes and suffixes
+      first_names = name_arr[1].split(" ") # we also want to split the first name(s) into an array to check for salutations and suffixes
+
+
+      # lets check if the last name(s) contain a suffix
+      if contains_suffix(last_names)
+        self.suffix = last_names.pop.strip
+      end
+
+      # now we'll recombine the last name(s) and first name(s) into one array to be processed as normal
+      # We assume if there were multiple last names (i.e. before the comma) that they are all part of the last name.
+      first_names + [last_names.join(" ").strip]
     end
 
     def suffixes

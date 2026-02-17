@@ -168,7 +168,7 @@ RSpec.describe NameSplitter::Splitter do
 
     context "and a middle name is provided" do
       let(:full_name) { "Smith, Jim C."}
-      it "correctly places the names in the first and last name fields" do  
+      it "correctly places the names in the first and last name fields" do
         expect(split_name.last_name).to eq("Smith")
         expect(split_name.first_name).to eq("Jim")
         expect(split_name.middle_name).to eq("C.")
@@ -177,7 +177,7 @@ RSpec.describe NameSplitter::Splitter do
 
     context "and a second person is provided along with a suffix" do
       let(:full_name) { "Bedard, Sheryl A. & Louis J. Jr."}
-      it "correctly places the names in the first and last name fields" do  
+      it "correctly places the names in the first and last name fields" do
         expect(split_name.last_name).to eq("Bedard")
         expect(split_name.first_name).to eq("Sheryl A. & Louis J.")
         expect(split_name.suffix).to eq("Jr.")
@@ -189,7 +189,7 @@ RSpec.describe NameSplitter::Splitter do
       it "correctly places the names in the first and last name fields, etc" do
         expect(split_name.last_name).to eq("Bedard")
         expect(split_name.first_name).to eq("John")
-        expect(split_name.middle_name).to eq("Samuel Benning")  
+        expect(split_name.middle_name).to eq("Samuel Benning")
       end
     end
   end
@@ -217,12 +217,33 @@ RSpec.describe NameSplitter::Splitter do
 
       context "and no space separating the comma and the first name" do
         let(:full_name) { "Smith,Jim"}
-          
+
         it "works properly and places the names in the correct fields" do
           expect(split_name.first_name).to eq("Jim")
           expect(split_name.last_name).to eq("Smith")
         end
       end
+
+      context "and the last name contains multiple names and the name also includes a middle initial" do
+        let(:full_name) { "Smith Johnson, Jim C."}
+
+        it "correctly places the names in the first and last name fields" do
+          expect(split_name.last_name).to eq("Smith Johnson")
+          expect(split_name.first_name).to eq("Jim")
+          expect(split_name.middle_name).to eq("C.")
+        end
+      end
+
+      context "and the name includes a salutation" do
+        let(:full_name) { "Smith, Mr. Jim"}
+
+        it "correctly places the names in the first and last name and salutation fields" do
+          expect(split_name.last_name).to eq("Smith")
+          expect(split_name.first_name).to eq("Jim")
+          expect(split_name.salutation).to eq("Mr.")
+        end
+      end
+
     end
 
     context 'and also includes salutations' do

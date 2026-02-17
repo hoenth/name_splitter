@@ -76,22 +76,22 @@ module NameSplitter
     private
 
     def number_of_middle_names(name_arr)
-      # if the first and last names have already been assigned, assume the
-      # rest of the name is a middle name
-      if !first_name.empty? && !last_name.empty?
-        return name_arr.length
-      end
+      number_of_non_middle_names = 0
+      number_of_non_middle_names += 1 if self.first_name.empty?
+      number_of_non_middle_names += 1 if self.last_name.empty?
+      number_of_non_middle_names += 1 if contains_last_name_prefix(name_arr)
+      number_of_non_middle_names += 1 if contains_suffix(name_arr)
+      return 0 if name_arr.length <= number_of_non_middle_names
 
-      #checks whether the array of names passed in contains a likely middle name
-      if (name_arr.length == 2 &&
-        !(contains_suffix(name_arr) || contains_last_name_prefix(name_arr))) ||
-      (name_arr.length == 3 &&
-        !(contains_suffix(name_arr) && contains_last_name_prefix(name_arr))) ||
-      name_arr.length > 3
-        return 1
-      end
+      # p "last name emptty: #{self.last_name.empty?}"
+      # p "contains_last_name_prefix: #{contains_last_name_prefix(name_arr)}"
+      # p "first_name: #{first_name}"
+      # p "last_name: #{last_name}"
+      # p "number_of_non_middle_names: #{number_of_non_middle_names}"
+      # p "name_arr: #{name_arr}"
 
-      return 0
+      # assume all other names that are not last name prefixes, or suffixes are middle names
+      name_arr.length - number_of_non_middle_names
     end
 
     def number_of_salutations(name_arr)
@@ -119,18 +119,25 @@ module NameSplitter
       second_first_names.collect { |x| x.upcase }.include?(_name.upcase)
     end
 
+    # this is a bit of a hack to determine if the first element in the name array is actually a last name.
+    # We assume that if there is a comma in the first element, then it is a last name.
+    # This is not always the case, but it is a common format for names and it allows us to correctly
+    # parse names like "Smith, John" and "Smith, John C." without incorrectly parsing names
+    # like "Smith Johnson Jr., Jim C." as having a last name of "Smith Johnson Jr."
+    # We don't need this if the last_name_first_format option is set to true because we will already be splitting the
+    # name on the comma and assigning the first element as the last name.
+    # But a file could have a mix of formats, or the format is not specified, so we want to be able to handle this case
+    # even if the last_name_first_format option is not set to true.
     def is_first_element_a_last_name(name_arr)
-      return true if @options[:format] == LAST_COMMA_FIRST_FORMAT
-
       name_arr[0].strip.match(/,/)
     end
 
-    def anded_names?(_name)
-      contains_an_and(_name)
+    def anded_names?(name)
+      contains_an_and(name)
     end
 
     def contains_an_and(*name_arr)
-      name_arr.flatten.select { |_name| ["and", "&"].include?(_name.to_s.strip) }.any?
+      name_arr.flatten.select { |name| ["and", "&"].include?(name.to_s.strip) }.any?
     end
 
     def contains_salutation(name)
@@ -138,13 +145,21 @@ module NameSplitter
       salutations.collect { |x| x.upcase }.include?(name.gsub(/[.,;']+/, "").upcase)
     end
 
+    # We check if the name array contains a last name prefix by checking the last two elements of the name array.
+    # This is because last name prefixes are typically found in the last name portion of the name, and they are
+    # typically found before the last name. For example, in the name "John de la Smith", "de la" is a last name prefix
+    # and it is found before the last name "Smith".
     def contains_last_name_prefix(name_arr)
-      last_name_prefix.collect { |x| x.upcase }.include?(name_arr.first.upcase)
+      return false if name_arr.length < 2
+      last_two = name_arr.last(2)
+      last_name_prefix.collect { |x| x.upcase }.include?(last_two.first.upcase)
     end
 
+    # the name can't contain a suffix unless there are at least two names left in the name array.
     def contains_suffix(name_arr)
-      raise "contains_suffix must receive an array" if !name_arr.class.name == "Array"
-      return false if name_arr.length == 1
+      raise "contains_suffix must receive an array" if !name_arr.is_a?(Array)
+      return false if name_arr.length < 2
+
       suffixes.collect { |x| x.upcase }.include?(name_arr.last.gsub(/[.,;']+/, "").upcase)
     end
 
@@ -164,13 +179,18 @@ module NameSplitter
         self.suffix = last_names.pop.strip
       end
 
+      # now let's check if the first name(s) contain a suffix
+      if contains_suffix(first_names)
+        self.suffix = first_names.pop.strip
+      end
+
       # now we'll recombine the last name(s) and first name(s) into one array to be processed as normal
       # We assume if there were multiple last names (i.e. before the comma) that they are all part of the last name.
       first_names + [last_names.join(" ").strip]
     end
 
     def suffixes
-      %w{Jr Sr II III IV V VI MD PHD Esq DDS}
+      %w{Jr Sr II III IV V VI MD PHD Esq DDS}.freeze
     end
 
     def last_name_prefix
@@ -178,11 +198,11 @@ module NameSplitter
     end
 
     def salutations
-      %w{Mr Mrs Ms Miss Dr Prof Rev Capt Sister Honorable Judge Chief}
+      %w{Mr Mrs Ms Miss Dr Prof Rev Capt Sister Honorable Judge Chief}.freeze
     end
 
     def second_first_names
-      %w{Beth Catherine Louise}
+      %w{Beth Catherine Louise}.freeze
     end
   end
 end

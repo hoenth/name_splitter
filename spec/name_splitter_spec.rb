@@ -156,6 +156,13 @@ RSpec.describe NameSplitter::Splitter do
     expect(name.last_name).to eq("Flanders")
   end
 
+  it "puts multiple names in the middle name field when the first and last do not contain special names" do
+    name = subject.new("Jimmy Arnold Bartol Smith")
+    expect(name.first_name).to eq("Jimmy")
+    expect(name.last_name).to eq("Smith")
+    expect(name.middle_name).to eq("Arnold Bartol")
+  end
+
   shared_examples_for "last name first separated by comma" do
     context "and nothing other than the first name is provided" do
       let(:full_name) { "Smith, Jim" }
